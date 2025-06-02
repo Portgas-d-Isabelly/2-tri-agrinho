@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agrinho - Seleção de Personagens MHA com Temas Dinâmicos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Luckiest+Guy&display=swap');
+
+  :root {
+    --primary-red: #c62828; /* Darker red */
+    --primary-yellow: #ffd600; /* Vibrant yellow */
+    --contrast-blue: #1565c0; /* Strong blue for contrast */
+    --dark-bg: #1b1b1b;
+    --light-bg: #fff8e1;
+    --shadow-color: rgba(0, 0, 0, 0.7);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, var(--light-bg) 60%, var(--contrast-blue) 40%);
+    font-family: 'Orbitron', sans-serif;
+    color: var(--primary-red);
+  }
+
+  header {
+    color: var(--primary-yellow);
+    padding: 2rem 1rem 4rem; /* Extra bottom padding for character icons */
+    text-align: center;
+    position: relative;
+    font-family: 'Luckiest Guy', cursive;
+    text-shadow: 2px 2px 4px var(--shadow-color);
+    transition: background-color 0.5s ease, color 0.5s ease;
+    background-color: var(--primary-red);
+  }
+  header h1 {
+    font-size: 3.75rem;
+    margin: 0;
+    letter-spacing: 0.1em;
+  }
+  header p {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+    transition: color 0.5s ease;
+  }
+
+  /* Character Icon displayed in header */
+  #selected-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid var(--primary-yellow);
+    background-color: var(--light-bg);
+    overflow: hidden;
+    filter: drop-shadow(0 0 5px var(--primary-yellow));
+    transition: border-color 0.5s ease;
+  }
+  #selected-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Characters container for floating characters */
+  .characters-container {
+    position: absolute;
+    top: 110%;
+    left: 50%;
+    width: 100vw;
+    max-width: 960px;
+    transform: translate(-50%, 0);
+    pointer-events: none;
+    user-select: none;
+    display: flex;
+    justify-content: space-around;
+    z-index: 10;
+  }
+  .character {
+    max-height: 190px;
+    max-width: 140px;
+    filter: drop-shadow(0 0 7px var(--primary-yellow));
+    animation: float 4s ease-in-out infinite;
+  }
+  .character:nth-child(odd) {
+    animation-delay: 0s;
+  }
+  .character:nth-child(even) {
+    animation-delay: 2s;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  main {
+    max-width: 960px;
+    margin: 280px auto 2rem auto;
+    padding: 0 1rem;
+  }
+  section {
+    background: var(--primary-red);
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 0 20px 3px var(--primary-yellow);
+    color: var(--primary-yellow);
+    font-family: 'Orbitron', sans-serif;
+  }
+  section h2 {
+    color: var(--primary-yellow);
+    border-bottom: 3px solid var(--primary-yellow);
+    padding-bottom: 0.3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  p, .card p {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    background: var(--contrast-blue);
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 0 15px 2px var(--primary-yellow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: var(--primary-yellow);
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 0 30px 6px var(--primary-yellow);
+  }
+  .card h3 {
+    margin-top: 0;
+    font-weight: 900;
+    font-family: 'Luckiest Guy', cursive;
+    color: var(--primary-yellow);
+  }
+  .product-img, .event-img {
+    width: 100%;
+    border-radius: 15px;
+    object-fit: contain;
+    max-height: 180px;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 8px var(--primary-yellow));
+  }
+  footer {
+    background: var(--primary-red);
+    color: var(--primary-yellow);
+    text-align: center;
+    padding: 1rem;
+    font-size: 1rem;
+    font-family: 'Luckiest Guy', cursive;
+    text-shadow: 1px 1px 3px var(--shadow-color);
+  }
+
+  /* Button style */
+  .btn {
+    display: inline-block;
+    background-color: var(--primary-yellow);
+    color: var(--primary-red);
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    text-decoration: none;
+    box-shadow: 0 0 15px var(--primary-yellow);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .btn:hover, .character-selector button:hover {
+    background-color: #ffee58;
+    color: #b71c1c;
+  }
+
+  /* Confetti with anime colors */
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background-color: transparent;
+    will-change: transform, opacity;
+    animation: fall 4s infinite;
+  }
+  @keyframes fall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
+  }
+
+  /* Character selection buttons */
+  .character-selector {
+    background: #fff8e1;
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 10px 2px var(--primary-yellow);
+    text-align: center;
+  }
+  .character-selector h2 {
+    color: var(--primary-red);
+    margin-bottom: 1rem;
+    font-family: 'Luckiest Guy', cursive;
+  }
+  .character-selector button {
+    background: transparent;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0 .75rem;
+    padding: 4px;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+  .character-selector button.selected {
+    border-color: var(--primary-red);
+    transform: scale(1.1);
+    box-shadow: 0 0 12px 3px var(--primary-red);
+  }
+  .character-selector button img {
+    width: 90px;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    filter: drop-shadow(0 0 6px var(--primary-red));
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+<header id="header">
+  <h1>Agrinho</h1>
+  <nav class="container d-flex justify-content-between align-items-center" >
+    <img src="ag.png" class="nav-img " loading="lazy">
+  <p id="banner-subtitle">Festejando a conexão do campo e da cidade com MHA</p>
+
+  <div id="selected-icon" aria-label="Ícone do personagem selecionado" title="Personagem selecionado">
+    <img src="https://vignette.wikia.nocookie.net/bokunoheroacademia/images/3/32/Izuku_Midoriya_Cosplay_Anime.png/revision/latest?cb=20200609175842&path-prefix=pt-br" alt="Ícone do personagem Izuku Midoriya" />
+  </div>
+  <div class="characters-container" aria-hidden="true">
+    <img src="https://vignette.wikia.nocookie.net/bokunoheroacademia/images/3/32/Izuku_Midoriya_Cosplay_Anime.png/revision/latest?cb=20200609175842&path-prefix=pt-br" alt="Personagem Izuku Midoriya de My Hero Academia" class="character" id="char-0" />
+    <img src="https://vignette.wikia.nocookie.net/bokunoheroacademia/images/d/d0/Katsuki_Bakugo_Anime.png/revision/latest?cb=20210401135715&path-prefix=pt-br" alt="Personagem Katsuki Bakugo de My Hero Academia" class="character" id="char-1" />
+    <img src="https://vignette.wikia.nocookie.net/bokunoheroacademia/images/2/21/Tsuyu_Asui_Anime.png/revision/latest?cb=20200609180218&path-prefix=pt-br" alt="Personagem Tsuyu Asui de My Hero Academia" class="character" id="char-2" />
+  </div>
+</header>
+
+<main>
+  <section class="character-selector" aria-label="Seleção de Personagens">
+    <h2>Selecione seu personagem favorito</h2>
+    <button type="button" aria-pressed="true" class="selected" data-index="0" aria-label="Selecionar Izuku Midoriya">
+      <img src="f.webp" alt="Personagem Izuku Midoriya" />
+    </button>
+    <button type="button" aria-pressed="false" data-index="1" aria-label="Selecionar Katsuki Bakugo">
+      <img src="li.webp" alt="Personagem Katsuki Bakugo" />
+    </button>
+    <button type="button" aria-pressed="false" data-index="2" aria-label="Selecionar Tsuyu Asui">
+      <img src="p.webp" alt="Personagem Tsuyu Asui" />
+    </button>
+  </section>
+
+  <section aria-labelledby="about-agrinho">
+    <h2 id="about-agrinho">Sobre o Agrinho</h2>
+    <p>O Agrinho é uma celebração especial que une o melhor do campo e da cidade, valorizando a agricultura, a cultura, e a colaboração entre esses dois mundos, com um toque anime de My Hero Academia! Descubra a energia e a determinação que inspiram a conexão brasileira.</p>
+  </section>
+
+  <section aria-labelledby="stories">
+    <h2 id="stories">Histórias do Campo</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>A vida no sítio</h3>
+        <p>Explore a rotina diária com a coragem e o espírito de heróis, celebrando a tradição, sustentabilidade e a paixão pela terra.</p>
+      </article>
+      <article class="card">
+        <h3>Produtos naturais e fresquinhos</h3>
+        <p>Frutas, legumes e produtos direto da fazenda, com a pureza e energia dignas de um verdadeiro herói.</p>
+      </article>
+      <article class="card">
+        <h3>Inovações no campo</h3>
+        <p>Tecnologia e sustentabilidade se unem como uma equipe para garantir o futuro brilhante da agricultura.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="urban-impact">
+    <h2 id="urban-impact">Impacto na Cidade</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>Feiras orgânicas</h3>
+        <p>Espaços onde produtores e consumidores se encontram para trocas reais e justas, como uma liga de heróis unida.</p>
+      </article>
+      <article class="card">
+        <h3>Educação e intercâmbio cultural</h3>
+        <p>Programas que fortalecem o entendimento e respeito entre campo e cidade, criando uma nova geração de protagonistas do futuro.</p>
+      </article>
+      <article class="card">
+        <h3>Consumo consciente</h3>
+        <p>Incentivando escolhas sábias e responsáveis para proteger nossos recursos naturais.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="products">
+    <h2 id="products">Produtos do Agrinho</h2>
+    <div class="grid">
+      <article class="card" id="product-0">
+        <img src="c.webp" alt="Cesta de frutas e legumes frescos" class="product-img"/>
+        <h3>Cesta de Produtos Orgânicos</h3>
+        <p>Produtos naturais do campo, com energia e frescor que lembram a força dos heróis.</p>
+      </article>
+      <article class="card" id="product-1">
+        <img src="pp.jpg" alt="Pão artesanal" class="product-img"/>
+        <h3>Pães Artesanais</h3>
+        <p>Receitas feitas com carinho e dedicação, dignas da tradição dos melhores heróis.</p>
+      </article>
+      <article class="card" id="product-2">
+        <img src="meljpg" alt="Mel em potes" class="product-img"/>
+        <h3>Mel Puro da Roça</h3>
+        <p>Doçura natural colhida com cuidado, para dar energia a todos os nossos heróis diários.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="events">
+    <h2 id="events">Galeria</h2>
+    <div class="grid">
+      <article class="card">
+        <img src="images.jpeg" alt="Feira agrícola ao ar livre" class="event-img" />
+      </article>
+      <article class="card">
+        <img src="lç.jpg" alt="Pessoas em festa tradicional" class="event-img" />
+    
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2024 Agrinho Anime - Celebrando a conexão do campo e da cidade com a força dos heróis de MHA.</p>
+</footer>
+
+<script>
+  const characters = [
+    {
+      main: "m.webp",
+      alt: "Personagem Izuku Midoriya",
+      icon: "l.avif",
+      headerBg: "#388e3c",        // Green based on Deku
+      headerText: "#e0f2f1",
+      bannerSubtitle: "Festejando a conexão campo e cidade com a força e a esperança de Izuku Midoriya!",
+      productId: "product-0",
+      productHighlight: true
+    },
+    {
+      main: "k.webp",
+      alt: "Personagem Katsuki Bakugo",
+      icon: "j.jpg",
+      headerBg: "#bf360c",       // Orange red based on Bakugo
+      headerText: "#fff3e0",
+      bannerSubtitle: "Explosiva conexão entre campo e cidade com a energia de Bakugo!",
+      productId: "product-1",
+      productHighlight: true
+    },
+    {
+      main: "t.webp",
+      alt: "Personagem Tsuyu Asui",
+      icon: "a.jpg",
+      headerBg: "#1e88e5",       // Blue based on Tsuyu
+      headerText: "#e3f2fd",
+      bannerSubtitle: "Frescor e alegria do campo e cidade com o toque especial de Tsuyu!",
+      productId: "product-2",
+      productHighlight: true
+    }
+  ];
+
+  function updateSelectedCharacter(index) {
+    // Update character icons in header floating container
+    characters.forEach((char, i) => {
+      const el = document.getElementById(`char-${i}`);
+      el.src = char.main;
+      el.alt = char.alt;
+      el.style.filter = "drop-shadow(0 0 7px var(--primary-yellow))";
+      // Dim non-selected characters
+      el.style.opacity = i === index ? "1" : "0.4";
+    });
+    
+    // Update icon in header corner
+    const selectedIcon = document.querySelector("#selected-icon img");
+    selectedIcon.src = characters[index].icon;
+    selectedIcon.alt = "Ícone do personagem " + characters[index].alt;
+
+    // Update selection buttons style and aria-pressed
+    const buttons = document.querySelectorAll(".character-selector button");
+    buttons.forEach((btn, i) => {
+      if (i === index) {
+        btn.classList.add("selected");
+        btn.setAttribute("aria-pressed", "true");
+      } else {
+        btn.classList.remove("selected");
+        btn.setAttribute("aria-pressed", "false");
+      }
+    });
+
+    // Change header background and text color
+    const header = document.getElementById("header");
+    header.style.backgroundColor = characters[index].headerBg;
+    header.style.color = characters[index].headerText;
+
+    // Adjust text shadow for readability depending on text color brightness
+    if (index === 2) {
+      // For blue background, dark text shadow
+      header.style.textShadow = "2px 2px 4px rgba(0,0,0,0.6)";
+    } else {
+      header.style.textShadow = "2px 2px 4px rgba(0,0,0,0.7)";
+    }
+
+    // Update border color of #selected-icon to match header text color
+    const selectedIconDiv = document.getElementById("selected-icon");
+    selectedIconDiv.style.borderColor = characters[index].headerText;
+    selectedIconDiv.style.filter = `drop-shadow(0 0 5px ${characters[index].headerText})`;
+
+    // Update banner subtitle text
+    const subtitle = document.getElementById("banner-subtitle");
+    subtitle.textContent = characters[index].bannerSubtitle;
+
+    // Highlight product related to selected character
+    characters.forEach((char, i) => {
+      const productCard = document.getElementById(char.productId);
+      if (productCard) {
+        if (i === index) {
+          productCard.style.boxShadow = `0 0 20px 6px ${characters[index].headerText}`;
+          productCard.style.border = `2px solid ${characters[index].headerText}`;
+          productCard.style.backgroundColor = shadeColor(char.headerBg, 0.25);
+        } else {
+          productCard.style.boxShadow = `0 0 15px 2px var(--primary-yellow)`;
+          productCard.style.border = 'none';
+          productCard.style.backgroundColor = 'var(--contrast-blue)';
+        }
+      }
+    });
+  }
+
+  // Helper: lighten or darken color by percent (percent between -1 and 1)
+  function shadeColor(color, percent) {
+    // Parse hex color #RRGGBB
+    let R = parseInt(color.substring(1,3),16);
+    let G = parseInt(color.substring(3,5),16);
+    let B = parseInt(color.substring(5,7),16);
+
+    R = parseInt(R * (1 + percent));
+    G = parseInt(G * (1 + percent));
+    B = parseInt(B * (1 + percent));
+
+    R = (R<255)?R:255;
+    G = (G<255)?G:255;
+    B = (B<255)?B:255;
+
+    let RR = R.toString(16).padStart(2,'0');
+    let GG = G.toString(16).padStart(2,'0');
+    let BB = B.toString(16).padStart(2,'0');
+
+    return `#${RR}${GG}${BB}`;
+  }
+
+  // Initialize default selected character
+  updateSelectedCharacter(0);
+
+  // Setup event listeners on character selection buttons
+  document.querySelectorAll(".character-selector button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const idx = Number(button.getAttribute("data-index"));
+      updateSelectedCharacter(idx);
+    });
+  });
+
+  // Confetti animation with color palette adapted dynamically
+  const colorsPalette = ['#c62828', '#ffd600', '#ffeb3b', '#b71c1c', '#fbc02d'];
+
+  function createConfettiPiece() {
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+    confetti.style.backgroundColor = colorsPalette[Math.floor(Math.random() * colorsPalette.length)];
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.animationDuration = (Math.random() * 3 + 3) + 's';
+    confetti.style.width = confetti.style.height = (Math.random() * 10 + 5) + 'px';
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 4000);
+  }
+
+  setInterval(createConfettiPiece, 120);
+</script>
+</body>
+</html>
+
